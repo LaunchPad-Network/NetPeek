@@ -1,0 +1,41 @@
+{{ define "content" }}
+<p>Welcome to {{ $.branding.Name }}'s Looking Glass. The information provided by and the support of this service are on a best effort basis.</p>
+<p>Select a PoP from the list below to view details and perform actions such as traceroute.</p>
+<div id="globalquery">
+    <form class="form">
+        <fieldset role="group">
+            <select name="mode">
+                <option value="whois" selected>whois [query]</option>
+            </select>
+            <input name="q" placeholder="Query" required>
+            <button type="submit" formmethod="get">></button>
+        </fieldset>
+    </form>
+</div>
+<div class="table-wrapper">
+    <table class="striped">
+        <thead>
+            <tr>
+                <th class="Name">Name</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .ServersList }}
+            <tr>
+                <td>
+                    <a href="/detail/{{ .Id }}">{{ .Id }}</a>
+                </td>
+                <td>{{ .Location }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+{{ if $.branding.MapUrl }}
+<p id="map-entry" style="display:none;">Alternatively, <a href="/map">switch to 3D map view</a></p>
+<script>
+    document.getElementById('map-entry').style.display = 'block';
+</script>
+{{ end }}
+{{ end }}

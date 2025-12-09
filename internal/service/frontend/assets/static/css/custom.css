@@ -1,0 +1,115 @@
+:root {
+    --pico-font-size: 100%;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+body>footer,
+body>header,
+body>main {
+    max-width: 800px;
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal);
+}
+
+body>header h1 {
+    margin-top: var(--pico-typography-spacing-vertical);
+    margin-bottom: 0;
+}
+
+.green {
+    color: #27ae60;
+    font-weight: 700;
+}
+
+.blue {
+    color: #2980b9;
+    font-weight: 700;
+}
+
+.zinc {
+    color: #6F7887;
+    font-weight: 700;
+}
+
+.red {
+    color: #c0392b;
+    font-weight: 700;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+table {
+    white-space: nowrap;
+}
+
+thead .Name {
+    width: 25%;
+}
+
+thead .Proto,
+thead .State {
+    width: 10%;
+}
+
+thead .Since {
+    width: 15%;
+}
+
+thead .Info {
+    width: 40%;
+}
+
+.form {
+    width: 515px;
+}
+
+.form select {
+    flex: 0 0 50%;
+}
+
+.form input {
+    flex: 0 0 40%;
+}
+
+.form fieldset {
+    margin-bottom: 0;
+}
+
+@media (max-width:576px) {
+    .form {
+        width: 100%;
+    }
+}
+
+h4 {
+    font-size: 1rem;
+}
+
+td {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+}
+
+/* code,
+pre {
+    font-size: 0.75rem;
+} */
+
+code {
+    overflow-x: auto;
+}
+
+#globalquery {
+    margin-bottom: var(--pico-spacing);
+}

@@ -1,0 +1,14 @@
+[Unit]
+Description=BIRD Looking Glass - Proxy
+After=bird.service
+
+[Service]
+Type=simple
+User=bird
+Group=bird
+ExecStart=/usr/local/sbin/bird-lgproxy-go
+Restart=on-failure
+EnvironmentFile=/etc/default/bird-lgproxy-go
+
+[Install]
+WantedBy=multi-user.target

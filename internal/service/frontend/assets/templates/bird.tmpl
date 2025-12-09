@@ -1,0 +1,11 @@
+{{ define "content" }}
+<h4>
+    <code>{{ $.Server.Id }}# {{ $.Command }}</code>
+</h4>
+<div class="code-wrapper">
+    <pre><code>{{ $.Raw }}</code></pre>
+</div>
+<p>
+    <a href="/detail/{{ $.Server.Id }}">Go back to Summary</a>
+</p>
+{{ end }}

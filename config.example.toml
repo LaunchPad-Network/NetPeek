@@ -1,0 +1,30 @@
+[net]
+    host = "0.0.0.0"
+    port = 1790
+    remote_ip_headers = ["CF-Connecting-IP"]
+
+[log]
+    level = "error"
+
+[branding]
+    name = "Example Network"
+    map_url = "https://example.com"
+    lg_domain = "lg.example.com"
+
+[servers]
+    pull_url = "https://example.com/nodes.csv"
+    whois = "whois.akae.re"
+    proxy_suffix = ".bb.example.com"
+    proxy_port = 10179
+    timeout = 5
+
+[[bgp_communities.list]]
+    prefix = "AS214955"
+    url = "https://geofeeds.launchpadx.top/communities.txt"
+
+[frontend]
+    name_filter = "^(?i)(device|kernel|static).*"
+
+[authentication]
+    privatekey = ""
+    publickey = ""

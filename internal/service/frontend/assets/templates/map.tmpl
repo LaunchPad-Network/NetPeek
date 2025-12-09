@@ -1,0 +1,44 @@
+{{ define "content" }}
+<p>Welcome to {{ $.branding.Name }}'s Looking Glass. The information provided by and the support of this service are on a best effort basis.</p>
+<p id="introduce" style="display:none;">Click a PoP from the map below to view details and perform actions such as traceroute.</p>
+<div id="globalquery" style="display:none;">
+    <form class="form">
+        <fieldset role="group">
+            <select name="mode">
+                <option value="whois" selected>whois [query]</option>
+            </select>
+            <input name="q" placeholder="Query" required>
+            <button type="submit" formmethod="get">></button>
+        </fieldset>
+    </form>
+</div>
+<noscript>
+    <p>JavaScript is disabled in your browser. Please enable JavaScript to use the interactive map feature.</p>
+    <p>Alternatively, <a href="/list">switch to PoP list view</a> (which do not requires JavaScript)</p>
+</noscript>
+<p id="map-frame-container" style="display:none;">
+    <iframe src="about:blank" width="100%" height="760px" style="border:none;" id="map-iframe"></iframe>
+</p>
+<script>
+    document.getElementById('introduce').style.display = 'block';
+    document.getElementById('globalquery').style.display = 'block';
+    document.getElementById('map-frame-container').style.display = 'block';
+    document.getElementById('map-iframe').src = '{{ $.branding.MapUrl }}/?lite=1&msg_origin=' + encodeURIComponent(window.location.origin);
+    window.addEventListener('message', function(event) {
+        // For security, check the origin of the message
+        if (event.origin !== '{{ $.branding.MapUrl }}') {
+            return;
+        }
+        var data = event.data;
+        if (data.type === 'selectPop') {
+            var popId = data.popId;
+            // Redirect to the PoP detail page
+            window.location.href = '/detail/' + encodeURIComponent(popId);
+        }
+    }, false);
+</script>
+<p id="foot-switcher" style="display:none;">Alternatively, <a href="/list">switch to PoP list view</a></p>
+<script>
+    document.getElementById('foot-switcher').style.display = 'block';
+</script>
+{{ end }}

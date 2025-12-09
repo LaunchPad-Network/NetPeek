@@ -1,0 +1,8 @@
+{{ define "content" }}
+<p>{{ or .Message "Error" }}</p>
+<p>
+    {{ if .Back }}
+        <a href="{{ .Back }}">{{ or .BackMessage "Go back" }}</a>
+    {{ end }}
+</p>
+{{ end }}

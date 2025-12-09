@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>
+        {{ if .Title }}
+            {{ .Title }} | {{ $.branding.Name }} Looking Glass
+        {{ else }}
+            {{ $.branding.Name }} Looking Glass
+        {{ end }}
+    </title>
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="/static/css/pico.blue.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body>
+    <header>
+        <h1>{{ $.branding.Name }} Looking Glass</h1>
+    </header>
+    <main>
+        {{ template "content" . }}
+    </main>
+    <footer>
+        <p>&copy; LaunchPad Network and NetPeek contributors | {{ $.version.CommitSHA }} | <a href="https://github.com/LaunchPad-Network/NetPeek" target="_blank">Source Code</a>
+    </footer>
+    {{ if $.branding.MapUrl }}
+    <script>
+        if (document.cookie.indexOf("lg_view_mode=map") !== -1) {
+            document.documentElement.dataset["theme"] = "dark";
+            document.documentElement.style.backgroundColor = "#000";
+        };
+    </script>
+    {{ end }}
+</body>
+</html>

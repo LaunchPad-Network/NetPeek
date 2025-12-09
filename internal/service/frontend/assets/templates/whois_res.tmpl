@@ -1,0 +1,17 @@
+{{ define "content" }}
+<form>
+    <fieldset role="group" style="margin-bottom:0;">
+        <input name="q" placeholder="Query" required>
+        <button type="submit" formmethod="get">WHOIS!</button>
+    </fieldset>
+</form>
+<h4>
+    <code>{{ $.branding.LgDomain }}# whois {{ $.Query }}</code>
+</h4>
+<div class="code-wrapper">
+    <pre><code>{{ $.Result }}</code></pre>
+</div>
+<p>
+    <a href="/">Go back to home</a>
+</p>
+{{ end }}

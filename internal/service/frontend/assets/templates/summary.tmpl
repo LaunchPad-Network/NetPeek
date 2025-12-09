@@ -1,0 +1,41 @@
+{{ define "content" }}
+<form class="form">
+    <fieldset role="group">
+        <select name="mode">
+            <option value="route" selected>show route for [ip/prefix]</option>
+            <option value="filter">filtered routes [protocol]</option>
+            <option value="traceroute">traceroute [ip]</option>
+        </select>
+        <input name="q" placeholder="Query" required>
+        <button type="submit" formmethod="get">></button>
+    </fieldset>
+</form>
+<h4>
+    <code>{{ $.Server.Id }}# show protocols</code>
+</h4>
+<div class="table-wrapper">
+    <table class="striped">
+        <thead>
+            <tr>
+                {{ range .SummaryTable.Header }}
+                <td class="{{ . }}">{{ . }}</td>
+                {{ end }}
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .SummaryTable.Rows }}
+            <tr>
+                <td><a href="/detail/{{ $.Server.Id }}/{{ urlquery .Name }}">{{ .Name }}</a></td>
+                <td>{{ .Proto }}</td>
+                <td class="{{ .MappedState }}">{{ .State }}</td>
+                <td>{{ .Since }}</td>
+                <td>{{ .Info  }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+<p>
+    <a href="/">Go back to home</a>
+</p>
+{{ end }}
