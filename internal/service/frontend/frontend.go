@@ -8,6 +8,7 @@ import (
 
 	"github.com/LaunchPad-Network/NetPeek/internal/config"
 	"github.com/LaunchPad-Network/NetPeek/internal/logger"
+	"github.com/LaunchPad-Network/NetPeek/internal/misc/birdformatter"
 	"github.com/LaunchPad-Network/NetPeek/internal/misc/proxyreq"
 	"github.com/LaunchPad-Network/NetPeek/internal/misc/render"
 	"github.com/LaunchPad-Network/NetPeek/internal/misc/serverslist"
@@ -365,7 +366,7 @@ func (f *Frontend) renderBird(c *gin.Context, id, q, cmd, raw string) {
 		"Title":   id + " - " + q,
 		"Server":  srv,
 		"Command": cmd,
-		"Raw":     summaryparser.SmartFormatter(strings.TrimSpace(raw)),
+		"Raw":     birdformatter.SmartFormatter(strings.TrimSpace(raw)),
 	})
 }
 
