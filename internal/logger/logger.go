@@ -24,6 +24,14 @@ func New(name string) *logrus.Logger {
 	switch logLevel {
 	case "info":
 		logger.SetLevel(logrus.InfoLevel)
+	case "error":
+		logger.SetLevel(logrus.ErrorLevel)
+	case "warn":
+		logger.SetLevel(logrus.WarnLevel)
+	case "fatal":
+		logger.SetLevel(logrus.FatalLevel)
+	case "panic":
+		logger.SetLevel(logrus.PanicLevel)
 	case "debug":
 		logger.SetLevel(logrus.DebugLevel)
 	case "trace":
