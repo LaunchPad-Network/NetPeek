@@ -2,6 +2,7 @@ package frontend
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/LaunchPad-Network/NetPeek/internal/config"
 	"github.com/LaunchPad-Network/NetPeek/internal/misc/render"
@@ -62,18 +63,24 @@ func (f *Frontend) setViewMode(mode string) gin.HandlerFunc {
 	}
 }
 
-func (f *Frontend) ctStage1(c *gin.Context) {
+func (f *Frontend) cookieTestStage1(c *gin.Context) {
 	c.SetCookie("ct", "1", 3600*24*365, "/", "", false, false)
-	c.Redirect(http.StatusFound, "/ct2")
+	c.Redirect(http.StatusFound, "/ct2?redirect="+url.QueryEscape(c.Query("redirect")))
 }
 
-func (f *Frontend) ctStage2(c *gin.Context) {
+func (f *Frontend) cookieTestStage2(c *gin.Context) {
+	redirect := c.Query("redirect")
+	if redirect == "" {
+		redirect = "/list"
+	}
+
 	ct, err := c.Cookie("ct")
 	if err != nil || ct != "1" {
 		f.renderErr(c, http.StatusTeapot,
 			"To use this website, please enable your browser's cookies and then click the refresh link below.",
-			"/", "Refresh")
+			redirect, "Refresh")
 		return
 	}
-	c.Redirect(http.StatusFound, "/list")
+
+	c.Redirect(http.StatusFound, redirect)
 }

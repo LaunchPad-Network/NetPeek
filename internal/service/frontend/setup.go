@@ -3,17 +3,38 @@ package frontend
 import (
 	"io/fs"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/LaunchPad-Network/NetPeek/internal/service/frontend/assets"
 	"github.com/foolin/goview"
 	"github.com/foolin/goview/supports/ginview"
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
 func (f *Frontend) setup() {
+	f.setupCookieTest()
 	f.setupStatic()
 	f.setupTemplates()
 	f.setupRoutes()
+}
+
+func (f *Frontend) setupCookieTest() {
+	f.engine.Use(func(c *gin.Context) {
+		ct, err := c.Cookie("ct")
+		if (err != nil || ct != "1") && c.Request.URL.Path != "/ct" && !strings.HasPrefix(c.Request.URL.Path, "/api") {
+			redirect := c.Request.RequestURI
+			if redirect == "/" {
+				redirect = "/list"
+			}
+
+			c.Redirect(http.StatusFound, "/ct?redirect="+url.QueryEscape(redirect))
+			c.Abort()
+		}
+
+		c.Next()
+	})
 }
 
 func (f *Frontend) setupStatic() {
@@ -52,8 +73,8 @@ func (f *Frontend) setupRoutes() {
 	f.engine.GET("/favicon.ico", f.serveFavicon)
 
 	f.engine.GET("/", f.handleHome)
-	f.engine.GET("/ct", f.ctStage1)
-	f.engine.GET("/ct2", f.ctStage2)
+	f.engine.GET("/ct", f.cookieTestStage1)
+	f.engine.GET("/ct2", f.cookieTestStage2)
 
 	f.engine.GET("/list", f.setViewMode("list"))
 	f.engine.GET("/map", f.setViewMode("map"))
