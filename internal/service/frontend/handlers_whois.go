@@ -12,8 +12,78 @@ import (
 	"github.com/robert-nix/ansihtml"
 )
 
-func (f *Frontend) handleWhoisNotSupported(c *gin.Context) {
-	f.renderErr(c, http.StatusNotAcceptable, "Not supported", "/", "Go back to home")
+type WhoisQueryStrategy interface {
+	Query(q string) (string, bool)
+}
+
+type AkaereWhoisStrategy struct{}
+type DefaultWhoisStrategy struct{}
+
+func (s *AkaereWhoisStrategy) Query(q string) (string, bool) {
+	probeRes, err := whois.AkaereProtocolProbe()
+	if err != nil {
+		return "", false
+	}
+
+	if !probeRes.Supported {
+		return "", false
+	}
+	if len(probeRes.Schemes) == 0 {
+		return "", false
+	}
+
+	availableSchemes := make(map[string]bool)
+	for _, scheme := range probeRes.Schemes {
+		availableSchemes[scheme] = true
+	}
+
+	prioritySchemes := []string{"ripe-dark", "bgptools-dark", "ripe", "bgptools"}
+	var selectedScheme string
+	for _, scheme := range prioritySchemes {
+		if availableSchemes[scheme] {
+			selectedScheme = scheme
+			break
+		}
+	}
+	if selectedScheme == "" {
+		selectedScheme = probeRes.Schemes[0]
+	}
+	log.Debugf("selected whois color scheme %s", selectedScheme)
+
+	res, err := whois.AkaereProtocolWhois(selectedScheme, q)
+	if err != nil {
+		return "", false
+	}
+
+	htmlResult := ansihtml.ConvertToHTML([]byte(res))
+	return string(htmlResult), true
+}
+
+func (s *DefaultWhoisStrategy) Query(q string) (string, bool) {
+	res := whois.Whois(q)
+	return strings.TrimSpace(res), true
+}
+
+type WhoisExecutor struct {
+	strategies []WhoisQueryStrategy
+}
+
+func NewWhoisExecutor() *WhoisExecutor {
+	return &WhoisExecutor{
+		strategies: []WhoisQueryStrategy{
+			&AkaereWhoisStrategy{},
+			&DefaultWhoisStrategy{},
+		},
+	}
+}
+
+func (e *WhoisExecutor) Execute(q string) template.HTML {
+	for _, strategy := range e.strategies {
+		if res, ok := strategy.Query(q); ok {
+			return template.HTML(res)
+		}
+	}
+	return template.HTML("")
 }
 
 func (f *Frontend) handleWhois(c *gin.Context) {
@@ -25,24 +95,16 @@ func (f *Frontend) handleWhois(c *gin.Context) {
 		return
 	}
 
-	var res string
-	probeRes, err := whois.AkaereProtocolProbe()
-	if err != nil {
-		res = whois.Whois(q)
-	} else if !probeRes.Supported {
-		res = whois.Whois(q)
-	} else {
-		akRes, err := whois.AkaereProtocolWhois(probeRes.Schemes[0], q)
-		if err != nil {
-			res = whois.Whois(q)
-		} else {
-			res = string(ansihtml.ConvertToHTML([]byte(akRes)))
-		}
-	}
+	executor := NewWhoisExecutor()
+	result := executor.Execute(q)
 
 	render.RenderHTML(c, http.StatusOK, "whois_res.tmpl", gin.H{
 		"Title":  "WHOIS Query - " + q,
 		"Query":  q,
-		"Result": template.HTML(strings.TrimSpace(res)),
+		"Result": result,
 	})
+}
+
+func (f *Frontend) handleWhoisNotSupported(c *gin.Context) {
+	f.renderErr(c, http.StatusNotAcceptable, "Not supported", "/", "Go back to home")
 }
