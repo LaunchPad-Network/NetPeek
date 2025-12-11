@@ -1,7 +1,7 @@
 {{ define "content" }}
 <form>
     <fieldset role="group" style="margin-bottom:0;">
-        <input name="q" placeholder="Query" required>
+        <input name="q" placeholder="Query" required value="{{ $.Query }}">
         <button type="submit" formmethod="get">WHOIS!</button>
     </fieldset>
 </form>
