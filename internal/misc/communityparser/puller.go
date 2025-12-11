@@ -1,6 +1,7 @@
 package communityparser
 
 import (
+	"strconv"
 	"sync"
 	"time"
 
@@ -56,7 +57,7 @@ func loadConfig() (*config, error) {
 }
 
 func (ent communityListEntry) Fetch() (string, error) {
-	r, err := net.FetchURLWithTimeoutAsPlaintext(ent.Url, viperx.GetInt("servers.timeout", 5))
+	r, err := net.FetchURLWithTimeoutAsPlaintext(ent.Url+"?t="+strconv.FormatInt(time.Now().Unix(), 10), viperx.GetInt("servers.timeout", 5))
 	if err != nil {
 		return "", err
 	}
