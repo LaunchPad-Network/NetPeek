@@ -28,6 +28,7 @@ func initEnv() {
 		viper.BindEnv("net.port")
 		viper.BindEnv("authentication.privatekey")
 		viper.BindEnv("authentication.publickey")
+		viper.BindEnv("log.level")
 	})
 }
 
