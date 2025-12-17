@@ -29,6 +29,7 @@ func initEnv() {
 		viper.BindEnv("authentication.privatekey")
 		viper.BindEnv("authentication.publickey")
 		viper.BindEnv("log.level")
+		viper.BindEnv("traceroute.disable")
 	})
 }
 

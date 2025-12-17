@@ -19,6 +19,7 @@ func SetupRouter() *gin.Engine {
 
 	r.GET("/bird", birdHandler)
 	r.GET("/traceroute", tracerouteHandler)
+	r.GET("/tracerouteh", tracerouteHTMLHandler)
 
 	return r
 }
@@ -65,8 +66,23 @@ func tracerouteHandler(c *gin.Context) {
 	r, err := traceroute.CallTraceroute(q)
 	if err != nil {
 		log.Errorf("traceroute error: %v", err)
-		c.String(500, "Internal server error")
+		c.String(500, err.Error())
 		return
 	}
+	c.String(200, r)
+}
+
+func tracerouteHTMLHandler(c *gin.Context) {
+	q, ok := securityCheck(c)
+	if !ok {
+		return
+	}
+	r, err := traceroute.CallTracerouteHTML(q)
+	if err != nil {
+		log.Errorf("traceroute error: %v", err)
+		c.String(500, err.Error())
+		return
+	}
+	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(200, r)
 }

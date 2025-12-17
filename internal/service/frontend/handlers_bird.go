@@ -1,6 +1,7 @@
 package frontend
 
 import (
+	"html/template"
 	"net/http"
 	"strings"
 
@@ -95,7 +96,19 @@ func (f *Frontend) handleTraceroute(c *gin.Context, id, q string) {
 		return
 	}
 
-	resp, err := proxyreq.TracerouteRequest(id, q)
+	resp, err := proxyreq.TracerouteHTMLRequest(id, q)
+	if err == nil && strings.HasPrefix(resp, "<table") {
+		srv := serverslist.GetServerByID(id)
+		render.RenderHTML(c, http.StatusOK, "tracerouteh.tmpl", gin.H{
+			"Title":   id + " - " + q,
+			"Server":  srv,
+			"Command": "traceroute " + q,
+			"Raw":     template.HTML(resp),
+		})
+		return
+	}
+
+	resp, err = proxyreq.TracerouteRequest(id, q)
 	if err != nil {
 		log.Errorf("Failed to perform traceroute for %s (%s): %v", id, q, err)
 		f.renderModeErr(c, id, "Failed to perform traceroute.")

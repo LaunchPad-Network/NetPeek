@@ -35,3 +35,11 @@ func TracerouteRequest(node, q string) (string, error) {
 	}
 	return net.FetchURLWithTimeoutAsPlaintext(url, viperx.GetInt("servers.timeout", 5))
 }
+
+func TracerouteHTMLRequest(node, q string) (string, error) {
+	url, err := buildProxyUrl(node, "tracerouteh", q)
+	if err != nil {
+		return "", err
+	}
+	return net.FetchURLWithTimeoutAsPlaintext(url, viperx.GetInt("servers.timeout", 5))
+}

@@ -8,13 +8,13 @@ require (
 	github.com/gin-contrib/pprof v1.5.3
 	github.com/gin-gonic/gin v1.11.0
 	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
-	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/gookit/color v1.6.0
 	github.com/lfcypo/viperx v0.0.0-20250208054716-bf1889d682b9
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/robert-nix/ansihtml v1.0.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.21.0
+	github.com/syepes/network_exporter v0.0.0-20251122205749-9c9f5836dc98
 	golang.org/x/net v0.48.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )

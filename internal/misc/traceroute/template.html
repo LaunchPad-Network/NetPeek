@@ -1,0 +1,52 @@
+<table class="mtr-table striped">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Host</th>
+      <th>Loss%</th>
+      <th>Snt</th>
+      <th>Last</th>
+      <th>Avg</th>
+      <th>Best</th>
+      <th>Worst</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{- range .Hops }}
+      {{- if .Success }}
+      <tr>
+        <td>{{ .Hop }}</td>
+        <td>
+          {{ if .PTR }}
+            {{ .PTR }} ({{ .Host }})
+          {{ else }}
+            {{ .Host }}
+          {{ end }}
+        </td>
+        <td>{{ printf "%.1f" .Loss }}%</td>
+        <td>{{ .Snt }}</td>
+        <td>{{ printf "%.2f" .Last }}</td>
+        <td>{{ printf "%.2f" .Avg }}</td>
+        <td>{{ printf "%.2f" .Best }}</td>
+        <td>{{ printf "%.2f" .Worst }}</td>
+      </tr>
+      {{- else if .IsFinal }}
+      <tr class="hop-unknown">
+        <td>{{ .Hop }}</td>
+        <td colspan="7">???</td>
+      </tr>
+      {{- else }}
+      <tr class="hop-timeout">
+        <td>{{ .Hop }}</td>
+        <td>???</td>
+        <td>100.0%</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      {{- end }}
+    {{- end }}
+  </tbody>
+</table>

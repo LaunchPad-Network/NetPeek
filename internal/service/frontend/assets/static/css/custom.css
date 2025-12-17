@@ -57,6 +57,10 @@ table {
     white-space: nowrap;
 }
 
+.mtr-table {
+    margin-bottom: 0;
+}
+
 thead .Name {
     width: 25%;
 }
