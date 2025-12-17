@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/LaunchPad-Network/NetPeek/internal/misc/validator"
+	"github.com/lfcypo/viperx"
 	"github.com/spf13/viper"
 	"github.com/syepes/network_exporter/pkg/common"
 	"github.com/syepes/network_exporter/pkg/mtr"
@@ -42,11 +43,11 @@ func callMTR(q string) (*mtr.MtrResult, error) {
 	return mtr.Mtr(
 		target,
 		"",
-		30,
-		2,
-		1*time.Second,
+		viperx.GetInt("traceroute.maxhops", 30),
+		viperx.GetInt("traceroute.count", 3),
+		time.Duration(viperx.GetInt("traceroute.timeout", 1))*time.Second,
 		int(icmpID.Get()),
-		56,
+		viperx.GetInt("traceroute.size", 56),
 		"icmp",
 		"80",
 		isV6,
