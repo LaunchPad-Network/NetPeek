@@ -120,7 +120,9 @@ func (f *Frontend) handleTraceroute(c *gin.Context, id, q string) {
 
 func (f *Frontend) renderBird(c *gin.Context, id, q, cmd, raw string) {
 	srv := serverslist.GetServerByID(id)
+
 	protocol := ""
+	isRoute := strings.HasPrefix(cmd, "show route")
 	if strings.HasPrefix(cmd, "show protocols") {
 		protocol = q
 	}
@@ -132,6 +134,7 @@ func (f *Frontend) renderBird(c *gin.Context, id, q, cmd, raw string) {
 		"Raw": birdformatter.SmartFormatter(strings.TrimSpace(raw), birdformatter.SmartFormatterOptions{
 			Server:          srv,
 			CurrentProtocol: protocol,
+			IsRouteOutput:   isRoute,
 		}),
 	})
 }

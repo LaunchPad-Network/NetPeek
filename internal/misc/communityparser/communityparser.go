@@ -118,6 +118,8 @@ func (p *BGPCommunityProcessor) parseCommunityDefinitions(definitions string) {
 
 func normalizeCommunityString(community string) string {
 	normalized := strings.ReplaceAll(community, " ", "")
+	normalized = strings.ReplaceAll(normalized, "\n", "")
+	normalized = strings.ReplaceAll(normalized, "\r", "")
 	normalized = strings.Trim(normalized, "()")
 	normalized = strings.ReplaceAll(normalized, ",", ":")
 	return normalized
@@ -162,38 +164,85 @@ func (p *BGPCommunityProcessor) formatDescription(desc string, groups []string) 
 
 func (p *BGPCommunityProcessor) FormatBGPText(s string) string {
 	var result strings.Builder
-	lines := strings.Split(s, "\n")
+
+	preprocessed := preprocessMultilineCommunities(s)
+
+	lines := strings.Split(preprocessed, "\n")
 
 	for i, line := range lines {
 		if i > 0 {
 			result.WriteByte('\n')
 		}
 
-		if strings.Contains(line, "BGP.community:") || strings.Contains(line, "BGP.large_community:") {
-			formattedLine := communityValueRegex.ReplaceAllStringFunc(line, func(match string) string {
-				cleanMatch := strings.ReplaceAll(match, " ", "")
-				parts := strings.Split(strings.Trim(cleanMatch, "()"), ",")
-				isLarge := len(parts) == 3
+		formattedLine := communityValueRegex.ReplaceAllStringFunc(line, func(match string) string {
+			cleanMatch := strings.ReplaceAll(match, " ", "")
+			parts := strings.Split(strings.Trim(cleanMatch, "()"), ",")
+			isLarge := len(parts) == 3
 
-				entry, groups, found := p.findMatchingEntry(match, isLarge)
-				if !found {
-					return match
+			entry, groups, found := p.findMatchingEntry(match, isLarge)
+			if !found {
+				return match
+			}
+
+			formattedDesc := p.formatDescription(entry.Description, groups)
+
+			var displayText string
+			if p.outPrefix != "" {
+				displayText = "[" + p.outPrefix + ": " + formattedDesc + "]"
+			} else {
+				displayText = "[" + formattedDesc + "]"
+			}
+
+			return `<abbr class="smart-community" title="` + match + `">` + displayText + `</abbr>`
+		})
+		result.WriteString(formattedLine)
+	}
+
+	return result.String()
+}
+
+func preprocessMultilineCommunities(s string) string {
+	var result strings.Builder
+	lines := strings.Split(s, "\n")
+
+	for i := 0; i < len(lines); i++ {
+		line := lines[i]
+
+		if strings.Contains(line, "(") && !strings.Contains(line, ")") {
+			var communityBuilder strings.Builder
+			communityBuilder.WriteString(line)
+
+			for j := i + 1; j < len(lines); j++ {
+				communityBuilder.WriteString(" ")
+				communityBuilder.WriteString(lines[j])
+
+				if strings.Contains(lines[j], ")") {
+					i = j
+					result.WriteString(communityBuilder.String())
+					result.WriteString("\n")
+					break
 				}
-
-				formattedDesc := p.formatDescription(entry.Description, groups)
-
-				var displayText string
-				if p.outPrefix != "" {
-					displayText = "[" + p.outPrefix + ": " + formattedDesc + "]"
-				} else {
-					displayText = "[" + formattedDesc + "]"
+			}
+		} else if i > 0 && strings.HasPrefix(strings.TrimSpace(line), "(") {
+			prevLine := lines[i-1]
+			if strings.Contains(prevLine, "(") && !strings.Contains(prevLine, ")") {
+				mergedLine := prevLine + " " + line
+				resultStr := result.String()
+				if strings.HasSuffix(resultStr, prevLine+"\n") {
+					result.Reset()
+					result.WriteString(strings.TrimSuffix(resultStr, prevLine+"\n"))
 				}
-
-				return `<abbr class="smart-community" title="` + strings.ReplaceAll(match, " ", "") + `">` + displayText + `</abbr>`
-			})
-			result.WriteString(formattedLine)
+				result.WriteString(mergedLine)
+				result.WriteString("\n")
+			} else {
+				result.WriteString(line)
+				result.WriteString("\n")
+			}
 		} else {
 			result.WriteString(line)
+			if i < len(lines)-1 {
+				result.WriteString("\n")
+			}
 		}
 	}
 

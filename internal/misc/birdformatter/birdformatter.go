@@ -14,6 +14,7 @@ import (
 type SmartFormatterOptions struct {
 	Server          *serverslist.Server
 	CurrentProtocol string
+	IsRouteOutput   bool
 }
 
 func SmartFormatter(s string, options SmartFormatterOptions) template.HTML {
@@ -37,6 +38,8 @@ func SmartFormatter(s string, options SmartFormatterOptions) template.HTML {
 		}
 		result += lineFormatted + "\n"
 	}
-	result = communityparser.ProcessBirdOutput(result)
+	if options.IsRouteOutput {
+		result = communityparser.ProcessBirdOutput(result)
+	}
 	return template.HTML(result)
 }
