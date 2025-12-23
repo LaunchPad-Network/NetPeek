@@ -3,6 +3,7 @@ module github.com/LaunchPad-Network/NetPeek
 go 1.25.4
 
 require (
+	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/foolin/goview v0.3.0
 	github.com/gin-contrib/pprof v1.5.3
@@ -15,7 +16,9 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.21.0
 	github.com/syepes/network_exporter v0.0.0-20251122205749-9c9f5836dc98
+	github.com/syndtr/goleveldb v1.0.0
 	golang.org/x/net v0.48.0
+	golang.org/x/sync v0.19.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
@@ -33,6 +36,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/goccy/go-yaml v1.19.0 // indirect
+	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect

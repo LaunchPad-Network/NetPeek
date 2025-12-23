@@ -1,18 +1,25 @@
 package asnlookup
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/LaunchPad-Network/NetPeek/asnlookup2"
+	"github.com/LaunchPad-Network/NetPeek/internal/logger"
 	"github.com/LaunchPad-Network/NetPeek/internal/misc/whois"
+	"github.com/lfcypo/viperx"
 	"github.com/patrickmn/go-cache"
 )
 
+var log = logger.New("ASN Lookup")
+
 type ASNLookup struct {
-	cache *cache.Cache
+	cache   *cache.Cache
+	lookup2 asnlookup2.Lookup
 }
 
 var Lookup = NewASNLookup(24 * time.Hour)
@@ -20,8 +27,17 @@ var Lookup = NewASNLookup(24 * time.Hour)
 // NewASNLookup 创建新的 ASNLookup
 // defaultExpiration 默认缓存过期时间
 func NewASNLookup(defaultExpiration time.Duration) *ASNLookup {
+	l2config := asnlookup2.DefaultConfig()
+	l2config.DataDir = viperx.GetString("asnlookup2.datadir", "./cache/asn_data")
+	lookup2, err := asnlookup2.New(l2config)
+	if err != nil {
+		log.Fatal("Lookup2 initialization fail, err: ", err)
+	}
+	lookup2.Start(context.Background())
+
 	return &ASNLookup{
-		cache: cache.New(defaultExpiration, time.Minute),
+		cache:   cache.New(defaultExpiration, time.Minute),
+		lookup2: lookup2,
 	}
 }
 
@@ -69,6 +85,18 @@ func (a *ASNLookup) LookupByWHOIS(asn string) (string, error) {
 
 // Lookup 查询 ASN 名称
 func (a *ASNLookup) Lookup(asn string) string {
+	parsed, err := asnlookup2.ParseASN("AS" + asn)
+	if err != nil {
+		return "AS NAME LOOKUP FAILURE"
+	}
+	q2, err := a.lookup2.Query(parsed)
+	if err == nil {
+		if q2.Name != "" {
+			return q2.Name
+		}
+	}
+	log.Debug("Lookup2 failed, err: ", err, ", fallback to Lookup1")
+
 	name, err := a.LookupByDNS(asn)
 	if err != nil {
 		name, err = a.LookupByWHOIS(asn)
