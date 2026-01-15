@@ -73,10 +73,7 @@ func (p *BGPCommunityProcessor) parseCommunityDefinitions(definitions string) {
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		if strings.HasPrefix(line, "#") {
+		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
 
@@ -158,6 +155,14 @@ func (p *BGPCommunityProcessor) findMatchingEntry(community string, isLarge bool
 	return CommunityEntry{}, nil, false
 }
 
+func normalizeGroupValue(v string) string {
+	n, err := strconv.Atoi(v)
+	if err != nil {
+		return v
+	}
+	return strconv.Itoa(n)
+}
+
 func (p *BGPCommunityProcessor) formatDescription(desc string, groups []string) string {
 	if len(groups) == 0 {
 		return desc
@@ -166,6 +171,7 @@ func (p *BGPCommunityProcessor) formatDescription(desc string, groups []string) 
 	result := desc
 
 	for i, group := range groups {
+		group = normalizeGroupValue(group)
 		placeholder := "$" + strconv.Itoa(i)
 		result = strings.ReplaceAll(result, placeholder, group)
 	}
@@ -177,7 +183,6 @@ func (p *BGPCommunityProcessor) FormatBGPText(s string) string {
 	var result strings.Builder
 
 	preprocessed := preprocessMultilineCommunities(s)
-
 	lines := strings.Split(preprocessed, "\n")
 
 	for i, line := range lines {
@@ -233,21 +238,6 @@ func preprocessMultilineCommunities(s string) string {
 					result.WriteString("\n")
 					break
 				}
-			}
-		} else if i > 0 && strings.HasPrefix(strings.TrimSpace(line), "(") {
-			prevLine := lines[i-1]
-			if strings.Contains(prevLine, "(") && !strings.Contains(prevLine, ")") {
-				mergedLine := prevLine + " " + line
-				resultStr := result.String()
-				if strings.HasSuffix(resultStr, prevLine+"\n") {
-					result.Reset()
-					result.WriteString(strings.TrimSuffix(resultStr, prevLine+"\n"))
-				}
-				result.WriteString(mergedLine)
-				result.WriteString("\n")
-			} else {
-				result.WriteString(line)
-				result.WriteString("\n")
 			}
 		} else {
 			result.WriteString(line)

@@ -107,6 +107,19 @@ func TestTripleXWildcardSuffix(t *testing.T) {
 	}
 }
 
+func TestTripleXWildcardSuffixWithLeadingZero(t *testing.T) {
+	p := NewBGPCommunityProcessor(definitions, "")
+
+	input := "BGP.community: (65535, 1023)"
+	output := p.FormatBGPText(input)
+
+	want := `<abbr class="smart-community" title="(65535, 1023)">[triple X wildcard match 23]</abbr>`
+
+	if output != "BGP.community: "+want {
+		t.Fatalf("unexpected output:\n%s", output)
+	}
+}
+
 func TestTripleXWildcardPrefix(t *testing.T) {
 	p := NewBGPCommunityProcessor(definitions, "")
 
