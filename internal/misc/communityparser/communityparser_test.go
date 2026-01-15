@@ -6,6 +6,8 @@ import (
 
 const definitions = `
 65535:666,exact match
+65535:1xxx,triple X wildcard match $0
+65535:xxx1,triple X wildcard match B $0
 65535:x0,match single digit wildcard $0
 65535:nnn,match any number $0
 65535:0:nnn,large community test $0
@@ -18,7 +20,7 @@ func TestExactMatch(t *testing.T) {
 	input := "BGP.community: (65535, 666)"
 	output := p.FormatBGPText(input)
 
-	want := `<abbr class="smart-community" title="(65535,666)">[TEST: exact match]</abbr>`
+	want := `<abbr class="smart-community" title="(65535, 666)">[TEST: exact match]</abbr>`
 	if output != "BGP.community: "+want {
 		t.Fatalf("unexpected output:\n%s", output)
 	}
@@ -31,7 +33,7 @@ func TestSingleDigitWildcard(t *testing.T) {
 	output := p.FormatBGPText(input)
 
 	// 65535:x0 → groups = ["1"]
-	want := `<abbr class="smart-community" title="(65535,10)">[match single digit wildcard 1]</abbr>`
+	want := `<abbr class="smart-community" title="(65535, 10)">[match single digit wildcard 1]</abbr>`
 	if output != "BGP.community: "+want {
 		t.Fatalf("unexpected output:\n%s", output)
 	}
@@ -44,7 +46,7 @@ func TestNNNWildcard(t *testing.T) {
 	output := p.FormatBGPText(input)
 
 	// 65535:nnn → group = ["123456"]
-	want := `<abbr class="smart-community" title="(65535,123456)">[match any number 123456]</abbr>`
+	want := `<abbr class="smart-community" title="(65535, 123456)">[match any number 123456]</abbr>`
 	if output != "BGP.community: "+want {
 		t.Fatalf("unexpected output:\n%s", output)
 	}
@@ -57,7 +59,7 @@ func TestLargeCommunity(t *testing.T) {
 	output := p.FormatBGPText(input)
 
 	// 65535:0:nnn → group = ["400"]
-	want := `<abbr class="smart-community" title="(65535,0,400)">[LARGE: large community test 400]</abbr>`
+	want := `<abbr class="smart-community" title="(65535, 0, 400)">[LARGE: large community test 400]</abbr>`
 	if output != "BGP.large_community: "+want {
 		t.Fatalf("unexpected output:\n%s", output)
 	}
@@ -70,7 +72,7 @@ func TestLargeWildcard(t *testing.T) {
 	output := p.FormatBGPText(input)
 
 	// 65535:x:nnn → groups = ["3", "999"]
-	want := `<abbr class="smart-community" title="(65535,3,999)">[large wildcard 3 999]</abbr>`
+	want := `<abbr class="smart-community" title="(65535, 3, 999)">[large wildcard 3 999]</abbr>`
 	if output != "BGP.large_community: "+want {
 		t.Fatalf("unexpected output:\n%s", output)
 	}
@@ -83,10 +85,38 @@ func TestMultipleCommunitiesInOneLine(t *testing.T) {
 	output := p.FormatBGPText(input)
 
 	want := "BGP.community: " +
-		`<abbr class="smart-community" title="(65535,666)">[exact match]</abbr> ` +
-		`<abbr class="smart-community" title="(65535,10)">[match single digit wildcard 1]</abbr>`
+		`<abbr class="smart-community" title="(65535, 666)">[exact match]</abbr> ` +
+		`<abbr class="smart-community" title="(65535, 10)">[match single digit wildcard 1]</abbr>`
 
 	if output != want {
+		t.Fatalf("unexpected output:\n%s", output)
+	}
+}
+
+func TestTripleXWildcardSuffix(t *testing.T) {
+	p := NewBGPCommunityProcessor(definitions, "")
+
+	input := "BGP.community: (65535, 1123)"
+	output := p.FormatBGPText(input)
+
+	// 1xxx → group = ["123"]
+	want := `<abbr class="smart-community" title="(65535, 1123)">[triple X wildcard match 123]</abbr>`
+
+	if output != "BGP.community: "+want {
+		t.Fatalf("unexpected output:\n%s", output)
+	}
+}
+
+func TestTripleXWildcardPrefix(t *testing.T) {
+	p := NewBGPCommunityProcessor(definitions, "")
+
+	input := "BGP.community: (65535, 9871)"
+	output := p.FormatBGPText(input)
+
+	// xxx1 → group = ["987"]
+	want := `<abbr class="smart-community" title="(65535, 9871)">[triple X wildcard match B 987]</abbr>`
+
+	if output != "BGP.community: "+want {
 		t.Fatalf("unexpected output:\n%s", output)
 	}
 }

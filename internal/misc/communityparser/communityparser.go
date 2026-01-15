@@ -32,29 +32,40 @@ func NewBGPCommunityProcessor(communityDefinition, outPrefix string) *BGPCommuni
 }
 
 func convertWildcardToRegex(patternPart string) (string, int) {
-	result := ""
+	var result strings.Builder
 	groupCount := 0
 
-	for i := 0; i < len(patternPart); i++ {
+	for i := 0; i < len(patternPart); {
 		ch := patternPart[i]
 
 		if ch == 'x' {
-			result += `(\d)`
-			groupCount++
-		} else if i+2 < len(patternPart) && patternPart[i:i+3] == "nnn" {
-			result += `(\d+)`
-			groupCount++
-			i += 2
-		} else {
-			if strings.ContainsAny(string(ch), `\.+*?()|[]{}^$`) {
-				result += `\` + string(ch)
-			} else {
-				result += string(ch)
+			j := i
+			for j < len(patternPart) && patternPart[j] == 'x' {
+				j++
 			}
+
+			count := j - i
+			result.WriteString(`(\d{` + strconv.Itoa(count) + `})`)
+			groupCount++
+			i = j
+			continue
 		}
+
+		if i+2 < len(patternPart) && patternPart[i:i+3] == "nnn" {
+			result.WriteString(`(\d+)`)
+			groupCount++
+			i += 3
+			continue
+		}
+
+		if strings.ContainsAny(string(ch), `\.+*?()|[]{}^$`) {
+			result.WriteByte('\\')
+		}
+		result.WriteByte(ch)
+		i++
 	}
 
-	return result, groupCount
+	return result.String(), groupCount
 }
 
 func (p *BGPCommunityProcessor) parseCommunityDefinitions(definitions string) {
